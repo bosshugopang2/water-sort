@@ -33,14 +33,6 @@ Sort the colored water in the tubes until each tube contains only one color. Sim
 
 ---
 
-## Themes & Custom Skins
-
-Water Sort includes a theme selection system with custom skins. If you use it , support by giving a star to repo.
-
-*   **Unlock Code**: `THANKYOU` (Enter this code to unlock all themes & custom skins instantly).
-
----
-
 
 ## License
 

@@ -39,6 +39,8 @@ class _GameViewState extends ConsumerState<GameView> {
   WaterSortGame? _game;
   Timer? _hudSwitchTimer;
   bool _showTimerInHud = false;
+  final GlobalKey<TooltipState> _solvabilityTooltipKey = GlobalKey<TooltipState>();
+  String _solvabilityTooltipMessage = 'Level is solvable';
 
   @override
   void initState() {
@@ -355,45 +357,112 @@ class _GameViewState extends ConsumerState<GameView> {
               ],
             ),
             if (state.isHintHelperEnabled)
-              GestureDetector(
-                onTap: () {
-                  final success = ref.read(gameViewModelProvider.notifier).showHint();
-                  if (!success) {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('No solution possible from current state. Try undoing some moves!'),
-                        duration: Duration(seconds: 2),
+              if (state.isCheckButtonEnabled)
+                Tooltip(
+                  key: _solvabilityTooltipKey,
+                  message: _solvabilityTooltipMessage,
+                  triggerMode: TooltipTriggerMode.manual,
+                  preferBelow: false,
+                  verticalOffset: 16,
+                  showDuration: const Duration(seconds: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  textStyle: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A2A38),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFF3E3E4E),
+                      width: 1,
+                    ),
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      final isSolvable = ref
+                          .read(gameViewModelProvider.notifier)
+                          .checkSolvability();
+                      setState(() {
+                        _solvabilityTooltipMessage = isSolvable
+                            ? 'Level is solvable'
+                            : 'Level is not solvable';
+                      });
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          _solvabilityTooltipKey.currentState
+                              ?.ensureTooltipVisible();
+                        }
+                      });
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(
+                            Icons.check_circle_outline_rounded,
+                            size: 18,
+                            color: Color(0xFF00E676),
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            'CHECK',
+                            style: TextStyle(
+                              fontFamily: 'BebasNeue',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF00E676),
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ],
                       ),
-                    );
-                  }
-                },
-                behavior: HitTestBehavior.opaque,
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(
-                        Icons.lightbulb_rounded,
-                        size: 18,
-                        color: Color(0xFFFFB300),
-                      ),
-                      SizedBox(width: 6),
-                      Text(
-                        'HINT',
-                        style: TextStyle(
-                          fontFamily: 'BebasNeue',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFFFFB300),
-                          letterSpacing: 0.8,
+                    ),
+                  ),
+                )
+              else
+                GestureDetector(
+                  onTap: () {
+                    final success = ref.read(gameViewModelProvider.notifier).showHint();
+                    if (!success) {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('No solution possible from current state. Try undoing some moves!'),
+                          duration: Duration(seconds: 2),
                         ),
-                      ),
-                    ],
+                      );
+                    }
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(
+                          Icons.lightbulb_rounded,
+                          size: 18,
+                          color: Color(0xFFFFB300),
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'HINT',
+                          style: TextStyle(
+                            fontFamily: 'BebasNeue',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFFFFB300),
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
           ],
         ),
       ),

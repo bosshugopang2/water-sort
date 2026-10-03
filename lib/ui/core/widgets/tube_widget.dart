@@ -55,23 +55,25 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
 
   IconData _getIconForColor(Color color) {
     final hex = color.toARGB32() & 0xFFFFFF;
-    switch (hex) {
-      case 0xE53935: return Icons.favorite_rounded;
-      case 0x1E88E5: return Icons.water_drop_rounded;
-      case 0x43A047: return Icons.eco_rounded;
-      case 0xFDD835: return Icons.wb_sunny_rounded;
-      case 0xFFFF8F00: return Icons.star_rounded;
-      case 0x8E24AA: return Icons.dark_mode_rounded;
-      case 0xEC407A: return Icons.auto_awesome_rounded;
-      case 0x00ACC1: return Icons.ac_unit_rounded;
-      case 0xB39DDB: return Icons.palette_rounded;
-      case 0xFF7043: return Icons.whatshot_rounded;
-      case 0x5C6BC0: return Icons.cloud_rounded;
-      case 0x009688: return Icons.diamond_rounded;
-      case 0x8D6E63: return Icons.cookie_rounded;
-      case 0xB71C1C: return Icons.bolt_rounded;
-      case 0xAD1457: return Icons.nightlight_rounded;
-      case 0x9E9D24: return Icons.grass_rounded;
+    final index = AppColors.waterColors.indexWhere((c) => (c.toARGB32() & 0xFFFFFF) == hex);
+    if (index == -1) return Icons.brightness_1_rounded;
+    switch (index) {
+      case 0: return Icons.favorite_rounded;
+      case 1: return Icons.water_drop_rounded;
+      case 2: return Icons.eco_rounded;
+      case 3: return Icons.wb_sunny_rounded;
+      case 4: return Icons.star_rounded;
+      case 5: return Icons.dark_mode_rounded;
+      case 6: return Icons.auto_awesome_rounded;
+      case 7: return Icons.ac_unit_rounded;
+      case 8: return Icons.palette_rounded;
+      case 9: return Icons.whatshot_rounded;
+      case 10: return Icons.cloud_rounded;
+      case 11: return Icons.diamond_rounded;
+      case 12: return Icons.cookie_rounded;
+      case 13: return Icons.bolt_rounded;
+      case 14: return Icons.nightlight_rounded;
+      case 15: return Icons.grass_rounded;
       default: return Icons.brightness_1_rounded;
     }
   }

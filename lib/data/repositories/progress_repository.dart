@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:watersort/domain/models/user_progress.dart';
 import 'package:watersort/domain/models/user_profile.dart';
+import 'package:watersort/ui/core/theme/app_colors.dart';
 import '../services/hive_service.dart';
 
 class ProgressRepository {
@@ -103,6 +105,14 @@ class ProgressRepository {
 
   Future<void> setHintHelperEnabled(bool enabled) async {
     await _hiveService.setHintHelperEnabled(enabled);
+  }
+
+  bool isCheckButtonEnabled() {
+    return _hiveService.isCheckButtonEnabled();
+  }
+
+  Future<void> setCheckButtonEnabled(bool enabled) async {
+    await _hiveService.setCheckButtonEnabled(enabled);
   }
 
   bool isUndoDecrementsMovesEnabled() {
@@ -217,4 +227,22 @@ class ProgressRepository {
   Future<void> setCustomBackgroundImagePath(String? path) async {
     await _hiveService.setCustomBackgroundImagePath(path);
   }
+
+  List<Color> getWaterColors() {
+    final customInts = _hiveService.getCustomWaterColors();
+    if (customInts != null && customInts.length == AppColors.defaultWaterColors.length) {
+      return customInts.map((i) => Color(i)).toList();
+    }
+    return List.of(AppColors.defaultWaterColors);
+  }
+
+  Future<void> saveWaterColors(List<Color> colors) async {
+    final ints = colors.map((c) => c.toARGB32()).toList();
+    await _hiveService.setCustomWaterColors(ints);
+  }
+
+  Future<void> resetWaterColors() async {
+    await _hiveService.setCustomWaterColors(null);
+  }
 }
+

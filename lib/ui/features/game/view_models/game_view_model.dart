@@ -41,6 +41,7 @@ class GameViewModelState {
     this.isBlurSolvedTubesEnabled = false,
     this.isInstantPouringEnabled = false,
     this.isHintHelperEnabled = false,
+    this.isCheckButtonEnabled = false,
     this.isUndoDecrementsMovesEnabled = false,
     this.isSoundEffectsEnabled = true,
     this.tubeSize = 'medium',
@@ -70,6 +71,7 @@ class GameViewModelState {
   final bool isBlurSolvedTubesEnabled;
   final bool isInstantPouringEnabled;
   final bool isHintHelperEnabled;
+  final bool isCheckButtonEnabled;
   final bool isUndoDecrementsMovesEnabled;
   final bool isSoundEffectsEnabled;
   final String tubeSize;
@@ -102,6 +104,7 @@ class GameViewModelState {
     bool? isBlurSolvedTubesEnabled,
     bool? isInstantPouringEnabled,
     bool? isHintHelperEnabled,
+    bool? isCheckButtonEnabled,
     bool? isUndoDecrementsMovesEnabled,
     bool? isSoundEffectsEnabled,
     String? tubeSize,
@@ -134,6 +137,7 @@ class GameViewModelState {
       isBlurSolvedTubesEnabled: isBlurSolvedTubesEnabled ?? this.isBlurSolvedTubesEnabled,
       isInstantPouringEnabled: isInstantPouringEnabled ?? this.isInstantPouringEnabled,
       isHintHelperEnabled: isHintHelperEnabled ?? this.isHintHelperEnabled,
+      isCheckButtonEnabled: isCheckButtonEnabled ?? this.isCheckButtonEnabled,
       isUndoDecrementsMovesEnabled: isUndoDecrementsMovesEnabled ?? this.isUndoDecrementsMovesEnabled,
       isSoundEffectsEnabled: isSoundEffectsEnabled ?? this.isSoundEffectsEnabled,
       tubeSize: tubeSize ?? this.tubeSize,
@@ -238,6 +242,7 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
         final isBlurSolved = _progressRepository.isBlurSolvedTubesEnabled();
         final isInstantPouring = _progressRepository.isInstantPouringEnabled();
         final isHintHelper = _progressRepository.isHintHelperEnabled();
+        final isCheckButton = isHintHelper && _progressRepository.isCheckButtonEnabled();
         final isUndoDecrementsMoves = _progressRepository.isUndoDecrementsMovesEnabled();
         final isSoundEffects = _progressRepository.isSoundEffectsEnabled();
         final tubeSize = _progressRepository.getTubeSize();
@@ -251,6 +256,7 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
           isBlurSolvedTubesEnabled: isBlurSolved,
           isInstantPouringEnabled: isInstantPouring,
           isHintHelperEnabled: isHintHelper,
+          isCheckButtonEnabled: isCheckButton,
           isUndoDecrementsMovesEnabled: isUndoDecrementsMoves,
           isSoundEffectsEnabled: isSoundEffects,
           tubeSize: tubeSize,
@@ -268,6 +274,7 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
       final isBlurSolved = _progressRepository.isBlurSolvedTubesEnabled();
       final isInstantPouring = _progressRepository.isInstantPouringEnabled();
       final isHintHelper = _progressRepository.isHintHelperEnabled();
+      final isCheckButton = isHintHelper && _progressRepository.isCheckButtonEnabled();
       final isUndoDecrementsMoves = _progressRepository.isUndoDecrementsMovesEnabled();
       final isSoundEffects = _progressRepository.isSoundEffectsEnabled();
       final tubeSize = _progressRepository.getTubeSize();
@@ -279,6 +286,7 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
         isBlurSolvedTubesEnabled: isBlurSolved,
         isInstantPouringEnabled: isInstantPouring,
         isHintHelperEnabled: isHintHelper,
+        isCheckButtonEnabled: isCheckButton,
         isUndoDecrementsMovesEnabled: isUndoDecrementsMoves,
         isSoundEffectsEnabled: isSoundEffects,
         tubeSize: tubeSize,
@@ -307,6 +315,7 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
     final isBlurSolved = _progressRepository.isBlurSolvedTubesEnabled();
     final isInstantPouring = _progressRepository.isInstantPouringEnabled();
     final isHintHelper = _progressRepository.isHintHelperEnabled();
+    final isCheckButton = isHintHelper && _progressRepository.isCheckButtonEnabled();
     final isUndoDecrementsMoves = _progressRepository.isUndoDecrementsMovesEnabled();
     final isSoundEffects = _progressRepository.isSoundEffectsEnabled();
     final tubeSize = _progressRepository.getTubeSize();
@@ -322,6 +331,7 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
       isBlurSolvedTubesEnabled: isBlurSolved,
       isInstantPouringEnabled: isInstantPouring,
       isHintHelperEnabled: isHintHelper,
+      isCheckButtonEnabled: isCheckButton,
       isUndoDecrementsMovesEnabled: isUndoDecrementsMoves,
       isSoundEffectsEnabled: isSoundEffects,
       tubeSize: tubeSize,
@@ -380,6 +390,7 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
           isBlurSolvedTubesEnabled: isBlurSolved,
           isInstantPouringEnabled: isInstantPouring,
           isHintHelperEnabled: isHintHelper,
+          isCheckButtonEnabled: isCheckButton,
           isUndoDecrementsMovesEnabled: isUndoDecrementsMoves,
           isSoundEffectsEnabled: isSoundEffects,
           tubeSize: tubeSize,
@@ -705,6 +716,24 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
       return true;
     }
     return false;
+  }
+
+  bool checkSolvability() {
+    if (state.level == null || state.isTimeOut) return false;
+    if (state.isComplete) return true;
+    final solver = LevelSolver();
+    if (_cachedSolution == null || _cachedSolution!.isEmpty) {
+      _cachedSolution = solver.solve(state.level!.tubes);
+    }
+    if (_cachedSolution != null && _cachedSolution!.isNotEmpty) {
+      final firstMove = _cachedSolution!.first;
+      if (!isValidPour(firstMove.fromIndex, firstMove.toIndex)) {
+        _cachedSolution = solver.solve(state.level!.tubes);
+      }
+    }
+    return _cachedSolution != null &&
+        (_cachedSolution!.isNotEmpty ||
+            state.level!.tubes.every((t) => t.isEmpty || t.isSolved));
   }
 
   @override

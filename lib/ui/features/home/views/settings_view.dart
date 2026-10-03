@@ -1,102 +1,12 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:watersort/ui/core/theme/app_colors.dart';
 import 'package:watersort/ui/providers.dart';
 
 class SettingsView extends ConsumerWidget {
   const SettingsView({super.key});
-
-  static const Map<ThemePack, _ThemeSpec> _themeSpecs = {
-    ThemePack.midnight: _ThemeSpec(
-      name: 'MIDNIGHT',
-      bg: Color(0xFF121212),
-      accent: Color(0xFF86EF4D),
-    ),
-    ThemePack.cyberpunk: _ThemeSpec(
-      name: 'CYBERPUNK',
-      bg: Color(0xFF0F0B1E),
-      accent: Color(0xFFFF007F),
-    ),
-    ThemePack.forest: _ThemeSpec(
-      name: 'FOREST',
-      bg: Color(0xFF0D140F),
-      accent: Color(0xFF50C878),
-    ),
-    ThemePack.space: _ThemeSpec(
-      name: 'SPACE',
-      bg: Color(0xFF090A15),
-      accent: Color(0xFFBD93F9),
-    ),
-    ThemePack.retro: _ThemeSpec(
-      name: 'RETRO',
-      bg: Color(0xFF17130E),
-      accent: Color(0xFFFFB86C),
-    ),
-    ThemePack.sunset: _ThemeSpec(
-      name: 'SUNSET',
-      bg: Color(0xFF1E0E25),
-      accent: Color(0xFFF9844A),
-    ),
-    ThemePack.neon: _ThemeSpec(
-      name: 'NEON',
-      bg: Color(0xFF050505),
-      accent: Color(0xFF39FF14),
-    ),
-    ThemePack.ocean: _ThemeSpec(
-      name: 'OCEAN',
-      bg: Color(0xFF0A192F),
-      accent: Color(0xFF00D2FF),
-    ),
-    ThemePack.volcano: _ThemeSpec(
-      name: 'VOLCANO',
-      bg: Color(0xFF1A0A0A),
-      accent: Color(0xFFFF4500),
-    ),
-    ThemePack.aurora: _ThemeSpec(
-      name: 'AURORA',
-      bg: Color(0xFF0B1B1E),
-      accent: Color(0xFF00FFCC),
-    ),
-    ThemePack.lavender: _ThemeSpec(
-      name: 'LAVENDER',
-      bg: Color(0xFF15101F),
-      accent: Color(0xFFE0B0FF),
-    ),
-    ThemePack.desert: _ThemeSpec(
-      name: 'DESERT',
-      bg: Color(0xFF221A0F),
-      accent: Color(0xFFE6C229),
-    ),
-    ThemePack.glitch: _ThemeSpec(
-      name: 'GLITCH',
-      bg: Color(0xFF0D0208),
-      accent: Color(0xFF00FF00),
-    ),
-    ThemePack.sakura: _ThemeSpec(
-      name: 'SAKURA',
-      bg: Color(0xFF261820),
-      accent: Color(0xFFFFB7C5),
-    ),
-    ThemePack.monochrome: _ThemeSpec(
-      name: 'MONOCHROME',
-      bg: Color(0xFF1A1A1A),
-      accent: Color(0xFFE0E0E0),
-    ),
-    ThemePack.aquamarine: _ThemeSpec(
-      name: 'AQUAMARINE',
-      bg: Color(0xFF081C15),
-      accent: Color(0xFF7FFFD4),
-    ),
-    ThemePack.solar: _ThemeSpec(
-      name: 'SOLAR',
-      bg: Color(0xFF200F00),
-      accent: Color(0xFFFFCC00),
-    ),
-  };
 
   Future<void> _launchExternalUrl(String urlString) async {
     final Uri url = Uri.parse(urlString);
@@ -238,8 +148,6 @@ class SettingsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
-    final activeSpec =
-        _themeSpecs[state.activeTheme] ?? _themeSpecs[ThemePack.midnight]!;
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -308,101 +216,6 @@ class SettingsView extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 children: [
                   _buildSectionHeader(
-                    icon: Icons.palette_rounded,
-                    title: 'THEME PALETTES',
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: activeSpec.accent.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: activeSpec.accent.withValues(alpha: 0.4),
-                          width: 1.0,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: activeSpec.accent,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            activeSpec.name,
-                            style: TextStyle(
-                              fontFamily: 'BebasNeue',
-                              fontSize: 13,
-                              color: activeSpec.accent,
-                              letterSpacing: 0.6,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      children: ThemePack.values.map((theme) {
-                        final spec = _themeSpecs[theme]!;
-                        final isSelected = state.activeTheme == theme;
-
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 12),
-                          child: GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              ref
-                                  .read(homeViewModelProvider.notifier)
-                                  .setThemePack(theme);
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: spec.bg,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? spec.accent
-                                      : const Color(0xFF383848),
-                                  width: isSelected ? 2.5 : 1.2,
-                                ),
-                              ),
-                              child: Center(
-                                child: Container(
-                                  width: 20,
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    color: spec.accent,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: isSelected
-                                      ? Icon(
-                                          Icons.check_rounded,
-                                          size: 14,
-                                          color: spec.bg,
-                                        )
-                                      : null,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  _buildSectionHeader(
                     icon: Icons.sports_esports_rounded,
                     title: 'GAMEPLAY & RULES',
                   ),
@@ -431,6 +244,20 @@ class SettingsView extends ConsumerWidget {
                             .read(homeViewModelProvider.notifier)
                             .toggleHintHelper(),
                       ),
+                      if (state.isHintHelperEnabled) ...[
+                        _buildDivider(),
+                        _buildSettingRow(
+                          icon: Icons.check_circle_outline_rounded,
+                          iconColor: const Color(0xFF10B981),
+                          title: 'CHECK BUTTON',
+                          description:
+                              'Replace the hint button with a check button that tells if the level is solvable via tooltip without giving hints.',
+                          value: state.isCheckButtonEnabled,
+                          onTap: () => ref
+                              .read(homeViewModelProvider.notifier)
+                              .toggleCheckButton(),
+                        ),
+                      ],
                       _buildDivider(),
                       _buildSettingRow(
                         icon: Icons.visibility_off_rounded,
@@ -454,60 +281,6 @@ class SettingsView extends ConsumerWidget {
                         onTap: () => ref
                             .read(homeViewModelProvider.notifier)
                             .toggleUndoDecrementsMoves(),
-                      ),
-                    ],
-                  ),
-                  _buildSectionHeader(
-                    icon: Icons.auto_awesome_rounded,
-                    title: 'AUDIO & VISUALS',
-                  ),
-                  _buildCardGroup(
-                    children: [
-                      _buildSettingRow(
-                        icon: state.isSoundEffectsEnabled
-                            ? Icons.volume_up_rounded
-                            : Icons.volume_off_rounded,
-                        iconColor: const Color(0xFF34D399),
-                        title: 'SOUND EFFECTS',
-                        description:
-                            'Liquid pouring sounds, tube completion chimes, and victory fanfare.',
-                        value: state.isSoundEffectsEnabled,
-                        isEnabled: !state.isInstantPouringEnabled,
-                        onTap: () => ref
-                            .read(homeViewModelProvider.notifier)
-                            .toggleSoundEffects(),
-                      ),
-                      _buildDivider(),
-                      _buildSettingRow(
-                        icon: Icons.motion_photos_off_rounded,
-                        iconColor: const Color(0xFFF87171),
-                        title: 'TURN OFF ANIMATIONS',
-                        description:
-                            'Instant gameplay mode. Disables pouring physics, ripples, waves, and all sound effects.',
-                        value: state.isInstantPouringEnabled,
-                        onTap: () => ref
-                            .read(homeViewModelProvider.notifier)
-                            .toggleInstantPouring(),
-                      ),
-                      _buildDivider(),
-                      _buildSettingRow(
-                        icon: Icons.blur_on_rounded,
-                        iconColor: const Color(0xFF2DD4BF),
-                        title: 'FROST SOLVED TUBES',
-                        description:
-                            'Apply an icy glass frosting effect to completed tubes to easily focus on active ones.',
-                        value: state.isBlurSolvedTubesEnabled,
-                        onTap: () => ref
-                            .read(homeViewModelProvider.notifier)
-                            .toggleBlurSolvedTubes(),
-                      ),
-                      _buildDivider(),
-                      _buildTubeSizeSelector(context, ref, state.tubeSize),
-                      _buildDivider(),
-                      _buildCustomBackgroundTile(
-                        context,
-                        ref,
-                        state.customBackgroundImagePath,
                       ),
                     ],
                   ),
@@ -573,130 +346,6 @@ class SettingsView extends ConsumerWidget {
     );
   }
 
-  Widget _buildTubeSizeSelector(
-    BuildContext context,
-    WidgetRef ref,
-    String currentSize,
-  ) {
-    const options = [
-      {'key': 'slim', 'label': 'SLIM'},
-      {'key': 'medium', 'label': 'MEDIUM'},
-      {'key': 'wide', 'label': 'WIDE'},
-      {'key': 'adaptive', 'label': 'ADAPTIVE'},
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF818CF8).withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(11),
-                  border: Border.all(
-                    color: const Color(0xFF818CF8).withValues(alpha: 0.35),
-                    width: 1.0,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.view_column_rounded,
-                  color: Color(0xFF818CF8),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'TUBE SIZE',
-                      style: TextStyle(
-                        fontFamily: 'BebasNeue',
-                        fontSize: 16,
-                        color: AppColors.headingWhite,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      'Choose default tube width: Slim, Medium, Wide, or Adaptive (auto-sizes to 4, 5, or 6 colors).',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.subtext,
-                        height: 1.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: const Color(0xFF101014),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF22222C), width: 1.0),
-            ),
-            child: Row(
-              children: options.map((opt) {
-                final isSelected = currentSize == opt['key'];
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      ref
-                          .read(homeViewModelProvider.notifier)
-                          .setTubeSize(opt['key']!);
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.accent.withValues(alpha: 0.16)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppColors.accent
-                              : Colors.transparent,
-                          width: 1.2,
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        opt['label']!,
-                        style: TextStyle(
-                          fontFamily: 'BebasNeue',
-                          fontSize: 13,
-                          fontWeight: isSelected
-                              ? FontWeight.w900
-                              : FontWeight.w500,
-                          color: isSelected
-                              ? AppColors.accent
-                              : AppColors.subtext,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSectionHeader({
     required IconData icon,
     required String title,
@@ -708,17 +357,21 @@ class SettingsView extends ConsumerWidget {
         children: [
           Icon(icon, size: 15, color: AppColors.accent),
           const SizedBox(width: 8),
-          Text(
-            title,
-            style: TextStyle(
-              fontFamily: 'BebasNeue',
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: AppColors.subtext,
-              letterSpacing: 1.2,
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: 'BebasNeue',
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: AppColors.subtext,
+                letterSpacing: 1.2,
+              ),
             ),
           ),
-          if (trailing != null) ...[const Spacer(), trailing],
+          if (trailing != null) ...[const SizedBox(width: 8), trailing],
         ],
       ),
     );
@@ -793,32 +446,30 @@ class SettingsView extends ConsumerWidget {
                       title,
                       style: TextStyle(
                         fontFamily: 'BebasNeue',
-                        fontSize: 16,
-                        color: AppColors.headingWhite,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                        color: isEnabled
+                            ? AppColors.headingWhite
+                            : AppColors.subtext,
                         letterSpacing: 0.8,
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
                     Text(
                       description,
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.subtext,
-                        height: 1.3,
+                        height: 1.25,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               _PremiumSwitch(
-                value: isEnabled ? value : false,
-                onTap: isEnabled
-                    ? () {
-                        HapticFeedback.selectionClick();
-                        onTap();
-                      }
-                    : () {},
+                value: value && isEnabled,
+                onTap: isEnabled ? onTap : () {},
               ),
             ],
           ),
@@ -894,181 +545,6 @@ class SettingsView extends ConsumerWidget {
       ),
     );
   }
-
-  Widget _buildCustomBackgroundTile(
-    BuildContext context,
-    WidgetRef ref,
-    String? customBgPath,
-  ) {
-    final bool hasBg = customBgPath != null && File(customBgPath).existsSync();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEC4899).withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFEC4899).withValues(alpha: 0.35),
-                    width: 1.0,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.image_rounded,
-                  color: Color(0xFFEC4899),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'CUSTOM BACKGROUND IMAGE',
-                      style: TextStyle(
-                        fontFamily: 'BebasNeue',
-                        fontSize: 17,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.headingWhite,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Set custom image from your deviice for gameplay background.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.subtext,
-                        height: 1.25,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          if (hasBg) ...[
-            Container(
-              height: 100,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF2C2C38)),
-                image: DecorationImage(
-                  image: FileImage(File(customBgPath)),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    side: const BorderSide(color: Color(0xFF333342)),
-                  ),
-                  onPressed: () async {
-                    final picker = ImagePicker();
-                    final pickedFile = await picker.pickImage(
-                      source: ImageSource.gallery,
-                    );
-                    if (pickedFile != null) {
-                      await ref
-                          .read(homeViewModelProvider.notifier)
-                          .setCustomBackgroundImage(pickedFile.path);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Custom background image set successfully.',
-                            ),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  icon: const Icon(
-                    Icons.photo_library_rounded,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                  label: Text(
-                    hasBg ? 'CHANGE IMAGE' : 'SET BACKGROUND IMAGE',
-                    style: const TextStyle(
-                      fontFamily: 'BebasNeue',
-                      fontSize: 14,
-                      color: Colors.white,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                ),
-              ),
-              if (hasBg) ...[
-                const SizedBox(width: 10),
-                IconButton(
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.redAccent.withValues(alpha: 0.15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: const BorderSide(
-                        color: Colors.redAccent,
-                        width: 0.8,
-                      ),
-                    ),
-                  ),
-                  onPressed: () async {
-                    await ref
-                        .read(homeViewModelProvider.notifier)
-                        .removeCustomBackgroundImage();
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Custom background image removed.'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    }
-                  },
-                  icon: const Icon(
-                    Icons.delete_outline_rounded,
-                    color: Colors.redAccent,
-                    size: 20,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ThemeSpec {
-  final String name;
-  final Color bg;
-  final Color accent;
-  const _ThemeSpec({
-    required this.name,
-    required this.bg,
-    required this.accent,
-  });
 }
 
 class _PremiumSwitch extends StatelessWidget {

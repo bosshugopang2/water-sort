@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -19,6 +20,7 @@ class HomeViewModelState {
     this.isBlurSolvedTubesEnabled = false,
     this.isInstantPouringEnabled = false,
     this.isHintHelperEnabled = false,
+    this.isCheckButtonEnabled = false,
     this.isUndoDecrementsMovesEnabled = false,
     this.isSoundEffectsEnabled = true,
     this.tubeSize = 'medium',
@@ -26,6 +28,7 @@ class HomeViewModelState {
     this.activeTheme = ThemePack.midnight,
     this.areThemesUnlocked = false,
     this.customBackgroundImagePath,
+    this.customWaterColors = AppColors.defaultWaterColors,
   });
 
   final UserProgress? progress;
@@ -37,6 +40,7 @@ class HomeViewModelState {
   final bool isBlurSolvedTubesEnabled;
   final bool isInstantPouringEnabled;
   final bool isHintHelperEnabled;
+  final bool isCheckButtonEnabled;
   final bool isUndoDecrementsMovesEnabled;
   final bool isSoundEffectsEnabled;
   final String tubeSize;
@@ -44,6 +48,7 @@ class HomeViewModelState {
   final ThemePack activeTheme;
   final bool areThemesUnlocked;
   final String? customBackgroundImagePath;
+  final List<Color> customWaterColors;
 
   HomeViewModelState copyWith({
     UserProgress? progress,
@@ -55,6 +60,7 @@ class HomeViewModelState {
     bool? isBlurSolvedTubesEnabled,
     bool? isInstantPouringEnabled,
     bool? isHintHelperEnabled,
+    bool? isCheckButtonEnabled,
     bool? isUndoDecrementsMovesEnabled,
     bool? isSoundEffectsEnabled,
     String? tubeSize,
@@ -62,6 +68,7 @@ class HomeViewModelState {
     ThemePack? activeTheme,
     bool? areThemesUnlocked,
     String? Function()? customBackgroundImagePath,
+    List<Color>? customWaterColors,
   }) {
     return HomeViewModelState(
       progress: progress ?? this.progress,
@@ -76,6 +83,7 @@ class HomeViewModelState {
       isInstantPouringEnabled:
           isInstantPouringEnabled ?? this.isInstantPouringEnabled,
       isHintHelperEnabled: isHintHelperEnabled ?? this.isHintHelperEnabled,
+      isCheckButtonEnabled: isCheckButtonEnabled ?? this.isCheckButtonEnabled,
       isUndoDecrementsMovesEnabled:
           isUndoDecrementsMovesEnabled ?? this.isUndoDecrementsMovesEnabled,
       isSoundEffectsEnabled:
@@ -87,6 +95,7 @@ class HomeViewModelState {
       customBackgroundImagePath: customBackgroundImagePath != null
           ? customBackgroundImagePath()
           : this.customBackgroundImagePath,
+      customWaterColors: customWaterColors ?? this.customWaterColors,
     );
   }
 }
@@ -123,6 +132,7 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
       final isBlurSolvedTubesEnabled = _progressRepository.isBlurSolvedTubesEnabled();
       final isInstantPouringEnabled = _progressRepository.isInstantPouringEnabled();
       final isHintHelperEnabled = _progressRepository.isHintHelperEnabled();
+      final isCheckButtonEnabled = isHintHelperEnabled && _progressRepository.isCheckButtonEnabled();
       final isUndoDecrementsMovesEnabled = _progressRepository.isUndoDecrementsMovesEnabled();
       final isSoundEffectsEnabled = _progressRepository.isSoundEffectsEnabled();
       final tubeSize = _progressRepository.getTubeSize();
@@ -135,6 +145,8 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
         orElse: () => ThemePack.midnight,
       );
       AppColors.setTheme(theme);
+      final waterColors = _progressRepository.getWaterColors();
+      AppColors.setWaterColors(waterColors);
       state = state.copyWith(
         progress: progress,
         activeProfile: () => activeProfile,
@@ -144,6 +156,7 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
         isBlurSolvedTubesEnabled: isBlurSolvedTubesEnabled,
         isInstantPouringEnabled: isInstantPouringEnabled,
         isHintHelperEnabled: isHintHelperEnabled,
+        isCheckButtonEnabled: isCheckButtonEnabled,
         isUndoDecrementsMovesEnabled: isUndoDecrementsMovesEnabled,
         isSoundEffectsEnabled: isSoundEffectsEnabled,
         tubeSize: tubeSize,
@@ -151,6 +164,7 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
         activeTheme: theme,
         areThemesUnlocked: areThemesUnlocked,
         customBackgroundImagePath: () => customBgPath,
+        customWaterColors: waterColors,
         isLoading: false,
       );
     } catch (e) {
@@ -214,7 +228,17 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
   Future<void> toggleHintHelper() async {
     final newValue = !state.isHintHelperEnabled;
     await _progressRepository.setHintHelperEnabled(newValue);
-    state = state.copyWith(isHintHelperEnabled: newValue);
+    await _progressRepository.setCheckButtonEnabled(false);
+    state = state.copyWith(
+      isHintHelperEnabled: newValue,
+      isCheckButtonEnabled: false,
+    );
+  }
+
+  Future<void> toggleCheckButton() async {
+    final newValue = !state.isCheckButtonEnabled;
+    await _progressRepository.setCheckButtonEnabled(newValue);
+    state = state.copyWith(isCheckButtonEnabled: newValue);
   }
 
   Future<void> toggleUndoDecrementsMoves() async {
@@ -278,4 +302,22 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
     await _progressRepository.updateProfile(profile);
     await loadProgress();
   }
+
+  Future<void> setWaterColor(int index, Color color) async {
+    final list = List<Color>.of(state.customWaterColors);
+    if (index >= 0 && index < list.length) {
+      list[index] = color;
+      await _progressRepository.saveWaterColors(list);
+      AppColors.setWaterColors(list);
+      state = state.copyWith(customWaterColors: list);
+    }
+  }
+
+  Future<void> resetWaterColors() async {
+    await _progressRepository.resetWaterColors();
+    final defaults = List<Color>.of(AppColors.defaultWaterColors);
+    AppColors.setWaterColors(defaults);
+    state = state.copyWith(customWaterColors: defaults);
+  }
 }
+

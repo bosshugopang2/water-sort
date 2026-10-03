@@ -152,6 +152,17 @@ class HiveService {
     await _settingsBox.put('${profileId}_hint_helper', enabled);
   }
 
+  bool isCheckButtonEnabled() {
+    final profileId = _getActiveProfileIdSync();
+    final val = _settingsBox.get('${profileId}_check_button_enabled');
+    return val == true;
+  }
+
+  Future<void> setCheckButtonEnabled(bool enabled) async {
+    final profileId = _getActiveProfileIdSync();
+    await _settingsBox.put('${profileId}_check_button_enabled', enabled);
+  }
+
   bool isUndoDecrementsMovesEnabled() {
     final profileId = _getActiveProfileIdSync();
     final val = _settingsBox.get('${profileId}_undo_decrements_moves');
@@ -254,4 +265,23 @@ class HiveService {
       await _settingsBox.put('${profileId}_custom_bg_path', path);
     }
   }
+
+  List<int>? getCustomWaterColors() {
+    final profileId = _getActiveProfileIdSync();
+    final val = _settingsBox.get('${profileId}_custom_water_colors');
+    if (val is List) {
+      return val.cast<int>();
+    }
+    return null;
+  }
+
+  Future<void> setCustomWaterColors(List<int>? colors) async {
+    final profileId = _getActiveProfileIdSync();
+    if (colors == null) {
+      await _settingsBox.delete('${profileId}_custom_water_colors');
+    } else {
+      await _settingsBox.put('${profileId}_custom_water_colors', colors);
+    }
+  }
 }
+

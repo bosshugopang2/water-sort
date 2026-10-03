@@ -9,6 +9,7 @@ import 'package:watersort/ui/features/level_select/views/level_select_view.dart'
 import 'package:watersort/ui/providers.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:watersort/domain/models/user_profile.dart';
+import 'package:watersort/ui/features/home/views/customization_view.dart';
 import 'package:watersort/ui/features/home/views/settings_view.dart';
 import 'package:watersort/ui/features/multiplayer/views/multiplayer_view.dart';
 
@@ -198,37 +199,21 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
               const SizedBox(height: 12),
 
-              // Level Select Button
               TangibleButton(
-                text: 'Select Level',
+                text: 'Game Modes',
                 isSecondary: true,
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LevelSelectView(),
-                  ),
-                ),
+                onPressed: () => _showGameModesSheet(context),
               ),
 
               const SizedBox(height: 12),
 
-              // Random Puzzle Button
               TangibleButton(
-                text: 'Random Puzzle',
-                isSecondary: true,
-                onPressed: () => _showDifficultyDialog(context),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Multiplayer Button
-              TangibleButton(
-                text: 'Multiplayer',
+                text: 'Customization',
                 isSecondary: true,
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const MultiplayerView(),
+                    builder: (context) => const CustomizationView(),
                   ),
                 ),
               ),
@@ -264,6 +249,86 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showGameModesSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF141418),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        side: BorderSide(color: Color(0xFF242430), width: 1.0),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF383844),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  'GAME MODES',
+                  style: TextStyle(
+                    fontFamily: 'BebasNeue',
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.headingWhite,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TangibleButton(
+                  text: 'Select Level',
+                  isSecondary: true,
+                  onPressed: () {
+                    Navigator.pop(sheetContext);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LevelSelectView(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                TangibleButton(
+                  text: 'Random Puzzle',
+                  isSecondary: true,
+                  onPressed: () {
+                    Navigator.pop(sheetContext);
+                    _showDifficultyDialog(context);
+                  },
+                ),
+                const SizedBox(height: 12),
+                TangibleButton(
+                  text: 'Multiplayer',
+                  isSecondary: true,
+                  onPressed: () {
+                    Navigator.pop(sheetContext);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MultiplayerView(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

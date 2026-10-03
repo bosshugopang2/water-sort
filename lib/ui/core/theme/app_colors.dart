@@ -91,7 +91,7 @@ class AppColors {
   static Color get lightCard => const Color(0xFF1C1C22);
   static Color get lightBorder => accent;
 
-  static const List<Color> waterColors = [
+  static const List<Color> defaultWaterColors = [
     Color(0xFFE53935),
     Color(0xFF1E88E5),
     Color(0xFF43A047),
@@ -109,4 +109,13 @@ class AppColors {
     Color(0xFFAD1457),
     Color(0xFF9E9D24),
   ];
+
+  static List<Color> _waterColors = List.of(defaultWaterColors);
+
+  static List<Color> get waterColors => _waterColors;
+
+  static void setWaterColors(List<Color> colors) {
+    _waterColors = List.of(colors);
+  }
 }
+
